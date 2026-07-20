@@ -259,53 +259,7 @@ with torch.no_grad():
 
 > **Note:** The default values for `--train_classes` and `--val_classes` in `options.py` are placeholders. The actual training configuration is specified via the shell scripts.
 
----
 
-## Model Architecture
-
-### Network Overview
-
-View the detailed network architecture: [📄 network_architecture.pdf](resources/network_architecture.pdf)
-
-
-
-### SAP_Net
-
-The core detection model consists of three components:
-
-1. **Frozen CLIP ViT-L/14 Backbone**
-   - Pre-trained `openai/clip-vit-large-patch14` from HuggingFace Transformers
-   - All parameters frozen during training
-
-2. **LoRA Adapters (Parameter-Efficient Fine-Tuning)**
-   - Injected on attention projection matrices: `q_proj`, `k_proj`, `v_proj`, `out_proj`
-   - Configuration: rank=8, lora_alpha=16, dropout=0.0, bias=none
-   - Only LoRA weights are updated during training (≈1–2M trainable parameters)
-
-3. **ViTMixStyle — Statistical-level Artifact Augmentation**
-   - Applied via forward hooks at configurable ViT encoder layers (default: layer 18 in `train.sh`, range `[5,6,7,8,9]` in `options.py`)
-   - For each ViT layer's patch token output: computes instance-level mean and standard deviation, normalizes features, then mixes statistics between paired fake samples using a Beta-distribution coefficient (α=0.1)
-   - The [CLS] token is preserved unchanged to maintain global semantic information
-   - During training, MixStyle is applied only to fake samples (identified via `_current_targets` attribute); during evaluation, it is bypassed entirely
-
-4. **Binary Classification Head**
-   - `Dropout(p=0.5)` → `Linear(1024, 1)`
-   - Outputs a single logit per image (real vs. fake)
-
-### Training Strategy
-
-| Component | Detail |
-|---|---|
-| Loss Function | `BCEWithLogitsLoss` |
-| Optimizer | AdamW (lr=1e-4) |
-| Learning Rate Schedule | Cosine annealing (1e-4 → 1e-5) |
-| Gradient Clipping | max_norm=1.0 |
-| Data Augmentation | Gaussian blur, JPEG compression (optional) |
-| Sampling | Balanced sampling via `WeightedRandomSampler` |
-| Image Size | 224×224 |
-| Multi-GPU | Automatic `DataParallel` support |
-
----
 
 ## Model Zoo
 
