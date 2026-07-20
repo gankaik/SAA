@@ -10,6 +10,15 @@ Official PyTorch implementation of **SAA: Statistical-level Artifact Augmentatio
 
 ---
 
+## Motivation
+
+<div align="center">
+  <img src="resources/tsne_all_24_layers_grid_adapter.png" alt="t-SNE visualization of feature distributions" width="800"/>
+  <p><em>Figure 1: t-SNE visualization of CLIP ViT feature distributions across 24 layers. Real and AI-generated image features from different generators exhibit distinct statistical patterns, motivating layer-wise statistical augmentation.</em></p>
+</div>
+
+---
+
 ## Key Features
 
 - **Statistical-level Artifact Augmentation** — ViTMixStyle perturbs feature statistics (mean/std) of fake samples at intermediate ViT layers, improving generalization to unseen generators
@@ -40,6 +49,9 @@ SAA/
 │   └── trainer.py                 # SAP_Trainer: training loop, metrics, checkpoints
 ├── options/
 │   └── options.py                 # Argument parsing and configuration
+├── resources/
+│   ├── network_architecture.pdf   # Network architecture diagram
+│   └── tsne_all_24_layers_grid_adapter.png  # t-SNE motivation figure
 ├── evaluate.py                    # Evaluation entry point (per-category Acc & AP)
 ├── evaluate.sh                    # Evaluation shell script wrapper
 ├── train.py                       # Training entry point
@@ -102,7 +114,7 @@ Dataset/
 ```
 
 The training and validation data must be downloaded separately. Please refer to the relevant benchmarks:
-- [UFD (Universal Fake Detector)](https://github.com/boB-oO/UniversalFakeDetect)
+- [UFD (Universal Fake Detector)](https://github.com/WisconsinAIVision/UniversalFakeDetect/tree/main)
 - [GenImage](https://github.com/GenImage-Dataset/GenImage)
 - [AIGI (AI-Generated Image)](https://github.com/IAAR-Shanghai/AIGCDetect)
 
@@ -251,6 +263,12 @@ with torch.no_grad():
 
 ## Model Architecture
 
+### Network Overview
+
+View the detailed network architecture: [📄 network_architecture.pdf](resources/network_architecture.pdf)
+
+
+
 ### SAP_Net
 
 The core detection model consists of three components:
@@ -286,6 +304,23 @@ The core detection model consists of three components:
 | Sampling | Balanced sampling via `WeightedRandomSampler` |
 | Image Size | 224×224 |
 | Multi-GPU | Automatic `DataParallel` support |
+
+---
+
+## Model Zoo
+
+We provide a pretrained checkpoint trained on ProGAN, Stable Diffusion v1.4, BigGAN, and ADM:
+
+| Model | Backbone | Training Data | Link |
+|---|---|---|---|
+| SAA (SAP_Net) | CLIP ViT-L/14 | ProGAN + SD v1.4 + BigGAN + ADM | [Google Drive](https://drive.google.com/file/d/1boXCdykjiUB8S31VgwucZSnjQcVHYZ84/view?usp=drive_link) |
+
+After downloading, place the checkpoint at `check_points/<experiment_name>/train_sap/model/sap_best_model.pth` and run evaluation:
+
+```bash
+# Edit evaluate.sh paths, then:
+bash evaluate.sh
+```
 
 ---
 
@@ -330,6 +365,6 @@ This project is released for academic research and educational purposes. Please 
 - [HuggingFace Transformers](https://github.com/huggingface/transformers) and [PEFT](https://github.com/huggingface/peft) libraries
 - [CLIP](https://github.com/openai/CLIP) by OpenAI
 - [MixStyle](https://github.com/KaiyangZhou/mixstyle) (Zhou et al., ICLR 2021) for the original MixStyle idea
-- [UniversalFakeDetect](https://github.com/boB-oO/UniversalFakeDetect) (UFD) benchmark
+- [UniversalFakeDetect](https://github.com/WisconsinAIVision/UniversalFakeDetect/tree/main) (UFD) benchmark
 - [GenImage](https://github.com/GenImage-Dataset/GenImage) benchmark
 - [AIGCDetect](https://github.com/IAAR-Shanghai/AIGCDetect) (AIGI) benchmark
