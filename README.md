@@ -116,7 +116,7 @@ Dataset/
 The training and validation data must be downloaded separately. Please refer to the relevant benchmarks:
 - [UFD (Universal Fake Detector)](https://github.com/WisconsinAIVision/UniversalFakeDetect/tree/main)
 - [GenImage](https://github.com/GenImage-Dataset/GenImage)
-- [AIGI (AI-Generated Image)](https://github.com/IAAR-Shanghai/AIGCDetect)
+- [AIGI (AI-Generated Image)](https://github.com/HorizonTEL/AIGIBench)
 
 ---
 
